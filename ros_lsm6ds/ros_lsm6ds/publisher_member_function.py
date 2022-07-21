@@ -18,15 +18,14 @@ from sensor_msgs.msg import Imu
 
 
 import board
-import adafruit_lsm6ds
-
+from adafruit_lsm6ds.lsm6dsox import LSM6DSOX
 
 class RosLsm6dsPublisher(Node):
 
     def __init__(self):
         super().__init__('ros_lsm6ds_publisher')
         self.i2c = board.I2C()
-        self.lsm6ds = adafruit_lsm6ds.lsm6dsox.LSM6DSOX(self.i2c)
+        self.lsm6ds = LSM6DSOX(self.i2c)
 
         self.publisher_ = self.create_publisher(Imu, 'ros_lsm6ds/data', 10)
         timer_period = 0.1  # seconds
