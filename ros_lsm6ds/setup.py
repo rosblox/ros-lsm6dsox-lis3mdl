@@ -1,6 +1,6 @@
 from setuptools import setup
 
-package_name = 'blox_lis3dh'
+package_name = 'ros_lsm6ds'
 
 setup(
     name=package_name,
@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-                'blox_lis3dh_publisher = blox_lis3dh.publisher_member_function:main',
+                'ros_lsm6ds_publisher = ros_lsm6ds.publisher_member_function:main',
         ],
     },
 )

@@ -14,45 +14,52 @@
 
 import rclpy
 from rclpy.node import Node
-from geometry_msgs.msg import Vector3Stamped
+from sensor_msgs.msg import Imu
 
 
 import board
-import adafruit_lis3dh
+import adafruit_lsm6ds
 
 
-class BloxLis3dhPublisher(Node):
+class RosLsm6dsPublisher(Node):
 
     def __init__(self):
-        super().__init__('blox_lis3dh_publisher')
+        super().__init__('ros_lsm6ds_publisher')
         self.i2c = board.I2C()
-        self.lis3dh = adafruit_lis3dh.LIS3DH_I2C(self.i2c)
-        self.publisher_ = self.create_publisher(Vector3Stamped, 'blox_lis3dh/data', 10)
-        timer_period = 0.2  # seconds
+        self.lsm6ds = adafruit_lsm6ds.lsm6dsox.LSM6DSOX(self.i2c)
+
+        self.publisher_ = self.create_publisher(Imu, 'ros_lsm6ds/data', 10)
+        timer_period = 0.1  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
     def timer_callback(self):
-        x, y, z = self.lis3dh.acceleration
-        msg = Vector3Stamped()
+        acc_x, acc_y, acc_z = self.lsm6ds.acceleration
+        rot_x, rot_y, rot_z = self.lsm6ds.gyro
+
+        msg = Imu()
         msg.header.stamp = self.get_clock().now().to_msg()
-        msg.header.frame_id = "blox_lis3dh"
-        msg.vector.x = x
-        msg.vector.y = y
-        msg.vector.z = z
+        msg.header.frame_id = "ros_lsm6ds"
+        msg.linear_acceleration.x = acc_x
+        msg.linear_acceleration.y = acc_y
+        msg.linear_acceleration.z = acc_z
+        msg.angular_velocity.x = rot_x
+        msg.angular_velocity.y = rot_y
+        msg.angular_velocity.z = rot_z
+
         self.publisher_.publish(msg)
 
 
 def main(args=None):
     rclpy.init(args=args)
 
-    blox_lis3dh_publisher = BloxLis3dhPublisher()
+    ros_lsm6ds_publisher = RosLsm6dsPublisher()
 
-    rclpy.spin(blox_lis3dh_publisher)
+    rclpy.spin(ros_lsm6ds_publisher)
 
     # Destroy the node explicitly
     # (optional - otherwise it will be done automatically
     # when the garbage collector destroys the node object)
-    blox_lis3dh_publisher.destroy_node()
+    ros_lsm6ds_publisher.destroy_node()
     rclpy.shutdown()
 
 

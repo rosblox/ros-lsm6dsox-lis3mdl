@@ -6,13 +6,13 @@ RUN apt update && apt install -y --no-install-recommends python3-rpi.gpio python
 RUN pip3 install adafruit-circuitpython-lsm6ds
 
 
-# WORKDIR /colcon_ws/src
+WORKDIR /colcon_ws/src
 
-# COPY blox_lis3dh .
+COPY ros_lsm6ds .
 
-# WORKDIR /colcon_ws
+WORKDIR /colcon_ws
 
-# RUN . /opt/ros/${ROS_DISTRO}/setup.sh && colcon build
+RUN . /opt/ros/${ROS_DISTRO}/setup.sh && colcon build
 
 WORKDIR /
 
