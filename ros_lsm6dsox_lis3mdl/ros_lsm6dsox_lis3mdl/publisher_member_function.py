@@ -45,7 +45,7 @@ class RosLsm6dsoxLis3mdlPublisher(Node):
         lsm6dsox_msg.header.stamp = self.get_clock().now().to_msg()
         lsm6dsox_msg.header.frame_id = "ros_lsm6dsox"
         lsm6dsox_msg.linear_acceleration.x = acc_x
-        lsm6dsox_msg.linear_acceleration.y = acc_y
+        lsm6dsox_msg.linear_acceleration.y = acc_y 
         lsm6dsox_msg.linear_acceleration.z = acc_z
         lsm6dsox_msg.angular_velocity.x = rot_x
         lsm6dsox_msg.angular_velocity.y = rot_y
