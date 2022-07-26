@@ -8,7 +8,7 @@ RUN pip3 install adafruit-circuitpython-lsm6ds adafruit-circuitpython-lis3mdl
 
 WORKDIR /colcon_ws/src
 
-COPY ros_lsm6ds .
+COPY ros_lsm6dsox_lis3mdl .
 
 WORKDIR /colcon_ws
 

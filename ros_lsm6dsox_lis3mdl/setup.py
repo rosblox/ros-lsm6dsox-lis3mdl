@@ -1,6 +1,6 @@
 from setuptools import setup
 
-package_name = 'ros_lsm6ds'
+package_name = 'ros_lsm6dsox_lis3mdl'
 
 setup(
     name=package_name,
@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-                'ros_lsm6ds_publisher = ros_lsm6ds.publisher_member_function:main',
+                'ros_lsm6dsox_lis3mdl_publisher = ros_lsm6dsox_lis3mdl.publisher_member_function:main',
         ],
     },
 )
