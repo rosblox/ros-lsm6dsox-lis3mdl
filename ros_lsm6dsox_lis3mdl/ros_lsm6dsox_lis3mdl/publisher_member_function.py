@@ -19,7 +19,7 @@ from sensor_msgs.msg import Imu, MagneticField
 
 import board
 
-from adafruit_lsm6ds.lsm6ds import LSM6DSOX
+from adafruit_lsm6ds.lsm6dsox import LSM6DSOX
 import adafruit_lis3mdl
 
 
