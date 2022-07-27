@@ -27,7 +27,7 @@ class RosLsm6dsoxLis3mdlPublisher(Node):
 
     def __init__(self):
         super().__init__('ros_lsm6dsox_lis3mdl_publisher')
-        self.i2c = board.I2C()
+        self.i2c = board.I2C() 
         self.lsm6dsox = adafruit_lsm6ds.lsm6dsox.LSM6DSOX(self.i2c)
         self.lis3mdl = adafruit_lis3mdl.LIS3MDL(self.i2c)
 
