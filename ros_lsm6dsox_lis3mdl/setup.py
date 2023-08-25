@@ -17,7 +17,6 @@ setup(
     maintainer_email='info@rosblox.com',
     description='TODO: Package description',
     license='BSD3',
-    tests_require=['pytest'],
     entry_points={
         'console_scripts': [
                 'ros_lsm6dsox_lis3mdl_publisher = ros_lsm6dsox_lis3mdl.publisher_member_function:main',

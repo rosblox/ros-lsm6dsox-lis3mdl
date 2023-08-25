@@ -28,6 +28,7 @@ class RosLsm6dsoxLis3mdlPublisher(Node):
     def __init__(self):
         super().__init__('ros_lsm6dsox_lis3mdl_publisher')
         self.i2c = board.I2C() 
+
         self.lsm6dsox = adafruit_lsm6ds.lsm6dsox.LSM6DSOX(self.i2c)
         self.lis3mdl = adafruit_lis3mdl.LIS3MDL(self.i2c)
 
@@ -35,6 +36,10 @@ class RosLsm6dsoxLis3mdlPublisher(Node):
         self.lis3mdl_publisher = self.create_publisher(MagneticField, '/imu/mag', 10)
         timer_period = 0.05  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
+
+        self.get_logger().info(f'Initalization finished.')
+
+
 
     def timer_callback(self):
         acc_x, acc_y, acc_z = self.lsm6dsox.acceleration
