@@ -12,8 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import yaml
+
 import rclpy
 from rclpy.node import Node
+
+from rcl_interfaces.msg import SetParametersResult
+
 from sensor_msgs.msg import Imu, MagneticField
 
 
@@ -27,18 +32,74 @@ class RosLsm6dsoxLis3mdlPublisher(Node):
 
     def __init__(self):
         super().__init__('ros_lsm6dsox_lis3mdl_publisher')
+
+        self.file_path = '/tmp/bias.yaml'
+
+        self.bias_x = self.load_bias_from_file('bias_x')
+        self.bias_y = self.load_bias_from_file('bias_y')
+        self.bias_z = self.load_bias_from_file('bias_z')
+
+        self.bias_x = self.declare_parameter('bias_x', self.bias_x).value
+        self.bias_y = self.declare_parameter('bias_y', self.bias_y).value
+        self.bias_z = self.declare_parameter('bias_z', self.bias_z).value
+
+        self.add_on_set_parameters_callback(self.on_set_parameters_callback)
+
+
         self.i2c = board.I2C() 
 
         self.lsm6dsox = adafruit_lsm6ds.lsm6dsox.LSM6DSOX(self.i2c)
         self.lis3mdl = adafruit_lis3mdl.LIS3MDL(self.i2c)
 
-        self.lsm6dsox_publisher = self.create_publisher(Imu, '/imu/data_raw', 10)
-        self.lis3mdl_publisher = self.create_publisher(MagneticField, '/imu/mag', 10)
-        timer_period = 0.1  # seconds
+        self.lsm6dsox_publisher = self.create_publisher(Imu, '/imu/data_raw', rclpy.qos.qos_profile_sensor_data)
+        self.lis3mdl_publisher = self.create_publisher(MagneticField, '/imu/mag', rclpy.qos.qos_profile_sensor_data)
+        timer_period = 0.05  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
-        self.get_logger().info(f'Initalization finished.')
+        self.get_logger().info(f'Initalization finished with bias x: {self.bias_x}, y: {self.bias_y}, z: {self.bias_z} ')
 
+
+    def load_bias_from_file(self, bias):
+        try:
+            with open(self.file_path, 'r') as file:
+                data = yaml.safe_load(file)
+                if bias in data:
+                    return data[bias]
+        except (FileNotFoundError, yaml.YAMLError, TypeError):
+            pass
+        return 0.0  # Default value if file doesn't exist or is invalid
+
+
+    def write_bias_to_file(self):
+        data = {
+            'bias_x': self.bias_x,
+            'bias_y': self.bias_y,
+            'bias_z': self.bias_z
+        }
+        with open(self.file_path, 'w') as file:
+            yaml.dump(data, file)
+
+
+    def on_set_parameters_callback(self, parameter_list):
+        result = SetParametersResult()
+
+        for param in parameter_list:
+            if param.name == 'bias_x':
+                self.bias_x = param.value
+                self.get_logger().info('Updated bias_x: %f!' % self.bias_x )   
+                result.successful = True             
+            elif param.name == 'bias_y':
+                self.bias_y = param.value
+                self.get_logger().info('Updated bias_y: %f!' % self.bias_y ) 
+                result.successful = True                            
+            elif param.name == 'bias_z':
+                self.bias_z = param.value
+                self.get_logger().info('Updated bias_z: %f!' % self.bias_z )     
+                result.successful = True             
+        
+        self.write_bias_to_file()
+
+        return result
 
 
     def timer_callback(self):
@@ -58,9 +119,9 @@ class RosLsm6dsoxLis3mdlPublisher(Node):
 
         lis3mdl_msg = MagneticField()
         lis3mdl_msg.header = lsm6dsox_msg.header
-        lis3mdl_msg.magnetic_field.x = mag_x
-        lis3mdl_msg.magnetic_field.y = mag_y
-        lis3mdl_msg.magnetic_field.z = mag_z
+        lis3mdl_msg.magnetic_field.x = (mag_x - self.bias_x) #* 1e-6
+        lis3mdl_msg.magnetic_field.y = (mag_y - self.bias_y) #* 1e-6
+        lis3mdl_msg.magnetic_field.z = (mag_z - self.bias_z) #* 1e-6
         
         self.lsm6dsox_publisher.publish(lsm6dsox_msg)
         self.lis3mdl_publisher.publish(lis3mdl_msg)
