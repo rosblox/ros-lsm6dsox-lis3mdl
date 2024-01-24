@@ -35,13 +35,8 @@ class RosLsm6dsoxLis3mdlPublisher(Node):
 
         self.file_path = '/tmp/bias.yaml'
 
-        self.bias_x = self.load_bias_from_file('bias_x')
-        self.bias_y = self.load_bias_from_file('bias_y')
-        self.bias_z = self.load_bias_from_file('bias_z')
-
-        self.bias_x = self.declare_parameter('bias_x', self.bias_x).value
-        self.bias_y = self.declare_parameter('bias_y', self.bias_y).value
-        self.bias_z = self.declare_parameter('bias_z', self.bias_z).value
+        self.bias_x, self.bias_y, self.bias_z = self.load_bias_from_file()
+        self.bias_x, self.bias_y, self.bias_z = tuple(self.declare_parameter('bias', [self.bias_x, self.bias_y, self.bias_z]).value)
 
         self.add_on_set_parameters_callback(self.on_set_parameters_callback)
 
@@ -59,22 +54,20 @@ class RosLsm6dsoxLis3mdlPublisher(Node):
         self.get_logger().info(f'Initalization finished with bias x: {self.bias_x}, y: {self.bias_y}, z: {self.bias_z} ')
 
 
-    def load_bias_from_file(self, bias):
+    def load_bias_from_file(self):
         try:
             with open(self.file_path, 'r') as file:
                 data = yaml.safe_load(file)
-                if bias in data:
-                    return data[bias]
+                if "bias" in data:
+                    return data["bias"]
         except (FileNotFoundError, yaml.YAMLError, TypeError):
             pass
-        return 0.0  # Default value if file doesn't exist or is invalid
+        return 0.0, 0.0, 0.0  # Default value if file doesn't exist or is invalid
 
 
     def write_bias_to_file(self):
         data = {
-            'bias_x': self.bias_x,
-            'bias_y': self.bias_y,
-            'bias_z': self.bias_z
+            'bias': [self.bias_x, self.bias_y, self.bias_z],
         }
         with open(self.file_path, 'w') as file:
             yaml.dump(data, file)
@@ -84,17 +77,14 @@ class RosLsm6dsoxLis3mdlPublisher(Node):
         result = SetParametersResult()
 
         for param in parameter_list:
-            if param.name == 'bias_x':
-                self.bias_x = param.value
-                self.get_logger().info('Updated bias_x: %f!' % self.bias_x )   
-                result.successful = True             
-            elif param.name == 'bias_y':
-                self.bias_y = param.value
-                self.get_logger().info('Updated bias_y: %f!' % self.bias_y ) 
-                result.successful = True                            
-            elif param.name == 'bias_z':
-                self.bias_z = param.value
-                self.get_logger().info('Updated bias_z: %f!' % self.bias_z )     
+            if param.name == 'bias':
+                delta_bias_x, delta_bias_y, delta_bias_z = tuple(param.value)
+
+                self.bias_x += delta_bias_x
+                self.bias_y += delta_bias_y
+                self.bias_z += delta_bias_z
+
+                self.get_logger().info(f'Updated (total) bias: [{self.bias_x}, {self.bias_y}, {self.bias_z}]!')   
                 result.successful = True             
         
         self.write_bias_to_file()
