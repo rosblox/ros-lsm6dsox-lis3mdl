@@ -8,6 +8,5 @@ docker run -it --rm \
 --privileged \
 --env UID=$(id -u) \
 --env GID=$(id -g) \
---device /dev/i2c-3:/dev/i2c-1 \
 --volume ./ros_lsm6dsox_lis3mdl:/colcon_ws/src/ros_lsm6dsox_lis3mdl \
 ghcr.io/rosblox/${REPOSITORY_NAME}:humble

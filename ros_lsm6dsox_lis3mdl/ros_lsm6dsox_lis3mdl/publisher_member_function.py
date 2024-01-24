@@ -41,7 +41,7 @@ class RosLsm6dsoxLis3mdlPublisher(Node):
         self.add_on_set_parameters_callback(self.on_set_parameters_callback)
 
 
-        self.i2c = board.I2C() 
+        self.i2c = board.I2C(3) 
 
         self.lsm6dsox = adafruit_lsm6ds.lsm6dsox.LSM6DSOX(self.i2c)
         self.lis3mdl = adafruit_lis3mdl.LIS3MDL(self.i2c)
