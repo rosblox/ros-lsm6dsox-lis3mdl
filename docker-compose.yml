@@ -10,7 +10,7 @@ services:
     pid: host
     privileged: true
     volumes:
-      - /home/rock/.ros:/tm`p
+      - /home/rock/.ros:/tmp
     environment:
       - UID=${HOST_UID}
       - ROS_DOMAIN_ID
