@@ -2,7 +2,7 @@ ARG ROS_DISTRO=humble
 
 FROM ros:${ROS_DISTRO}-ros-core
 
-RUN apt update && apt install -y --no-install-recommends gpiod python3-libgpiod python3-pip python3-colcon-common-extensions && rm -rf /var/lib/apt/lists/*
+RUN apt update && apt install -y --no-install-recommends gcc gpiod python3-dev python3-libgpiod python3-pip python3-colcon-common-extensions && rm -rf /var/lib/apt/lists/*
 RUN pip3 install adafruit-extended-bus adafruit-circuitpython-lsm6ds adafruit-circuitpython-lis3mdl
 
 COPY ros_entrypoint.sh /ros_entrypoint.sh
