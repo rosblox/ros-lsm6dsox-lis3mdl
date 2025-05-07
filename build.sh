@@ -1,7 +1,7 @@
 #!/bin/bash
 
-ROS_DISTRO=humble
+export BUILDKIT_PROGRESS=plain
 
-REPOSITORY_NAME="$(basename "$(dirname -- "$( readlink -f -- "$0"; )")")"
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-docker build --progress=plain --build-arg ROS_DISTRO=${ROS_DISTRO} -t ghcr.io/rosblox/${REPOSITORY_NAME}:${ROS_DISTRO} .
+docker compose -f $SCRIPT_DIR/docker-compose.yml build 

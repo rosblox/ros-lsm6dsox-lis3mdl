@@ -1,0 +1,17 @@
+services:
+  ros-lsm6dsox-lis3mdl:
+    image: ghcr.io/rosblox/ros-lsm6dsox-lis3mdl:humble
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    network_mode: "host"
+    ipc: host
+    pid: host
+    privileged: true
+    volumes:
+      - /home/rock/.ros:/tm`p
+    environment:
+      - UID=${HOST_UID}
+      - ROS_DOMAIN_ID
+    command: su - ros --whitelist-environment=ROS_DOMAIN_ID /run.sh
